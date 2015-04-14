@@ -90,3 +90,23 @@ def GiniIndex(p):
     return G / float(n - 1)
 
 
+
+# Popularity
+# 对所有的物品的流行度取对数( 流行度就是用的人数)
+# 为了避免0, 用 1+ 处理.
+def Popularity(train, test, N):
+    from collections import defaultdict
+    item_popularity = defaultdict(int)
+    for user, item in train.items():
+        for item in items.keys():
+            item_popularity[item] += 1
+
+    ret = 0
+    n = 0
+    for user in train.keys():
+        rank = GetRecommendation(user, N)
+        for item, pui in rank:
+            ret += math.log(1 + item_popularity[item])
+            n += 1
+    ret /= (n*1.0)
+    return ret
