@@ -110,3 +110,81 @@ def Popularity(train, test, N):
             n += 1
     ret /= (n*1.0)
     return ret
+
+
+
+# 用户间的相似度 (使用物项关系方面, 即两人与相同的物项集产生关联(不考虑个数), 则为100% 相似.)
+
+def userSimilarity(train):
+    import math
+    W = dict()
+    for u in train.keys():
+        for v in train.keys():
+            if u != v:
+                # Intersect
+                W[u][v] = len(train[u] & train[v])
+                W[u][v] /= math.sqrt(len(train[u] * len(train[v]) * 1.0)
+        return W
+
+
+# >> 对海量用户群体  复杂度高 难以接受 (实现)
+# example 新浪微博 就算只有50 M 实际用户, 那也要算一下子.
+
+# 方法实现依据:  user - item 的正向表
+
+# 简化 ->  建立item - user 的倒排表  引入稀疏矩阵 sparse
+
+# 并只存储那些  "我用的物品A, 与A产生的其它用户"  C[u][v] 的数据
+
+def UserSimilarity(train):
+    from collections import defaultdict
+    item_users = dict()
+    for u, items in train.items():
+        for i in items.keys():
+            if i not in item_users:
+                item_users[i] = set()
+            item_users[i].add(u)
+
+    # 计算用户间的关联物品
+    C = defaultdict()
+    N = defaultdict(int)
+    for i, users in items_users.items():
+        # 物项i被一群users用过
+        for u in users:
+            N[u] += 1
+            for v in users:
+                if u == v:
+                    continue
+                C[u][v] += 1
+
+    # 计算相似度
+    W = dict()
+    for u, related_users in C.items():
+        for v, cuv in related_users.items():
+            W[u][v] = cuv/math.sqrt(N[u] * N[v])
+    return W
+
+
+
+# Improved 相似度的公式 过粗, 未考虑 过热门产品(很多人都会拥有, 即使两个人都拥有也未必意为着他们二人相似.)
+
+# 引入惩罚项, 详情可搜索 John S. Breese 公式
+
+#
+
+def UserSimilarity(train):
+    from collections import defaultdict
+    # 物品用户倒排表
+    item_users = dict()
+    for u, items in train.items():
+        for i in items.keys():
+            if i not in item_users:
+                item_users[i] = set()
+            item_users[i].add(u)
+
+    # 计算用户间的关联物品
+    C = defaultdict()
+    N = defaultdict(int)
+    for i, users in items_users.items():
+        # 物项i被一群users用过
+        for u in users:
