@@ -188,3 +188,23 @@ def UserSimilarity(train):
     for i, users in items_users.items():
         # 物项i被一群users用过
         for u in users:
+            N[u] += 1
+            for v in users:
+                if u != v:
+                    C[u][v] += 1 / math.log(1+ len(users))
+
+    # calculate final similiarity matrix W
+    W = dict()
+    for u, related_users in C.items():
+        for v, cuv in related_users.items():
+            W[u][v] = cuv / math.sqrt(N[u] * N[v])
+    return W
+
+
+# 上述内容为基于用户的协同过滤思路
+# 下面是基于物品的
+# usecase: customers who bought this item also bought ...
+
+
+# userCF 算法 是以 物品-用户的倒排表 出发, itemCF 算法 则是以 用户-物品倒排表出发
+
