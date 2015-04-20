@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<!-- saved from url=(0031)http://dataunion.org/14821.html -->
+<html class=""><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/id.php" charset="utf-8"></script>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=10,IE=9,IE=8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="shortcut icon" href="http://dataunion.org/wp-content/themes/secer2014/img/favicon.ico" type="image/x-icon">
+		<title>不到100行代码实现一个简单的推荐系统 – 数盟社区 - </title>
+				<script>
+		window._deel = {name: '数盟社区',url: 'http://dataunion.org/wp-content/themes/secer2014', ajaxpager: 'on', commenton: 1, roll: [1,]}
+		</script>
+		<link rel="stylesheet" id="contact-form-7-css" href="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/styles.css" type="text/css" media="all">
+<link rel="stylesheet" id="style-css" href="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/style.css" type="text/css" media="all">
+<script type="text/javascript" src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/jquery.min.js"></script><style type="text/css" adt="123"></style><style type="text/css"></style><style type="text/css"></style><style type="text/css"></style>
+<script type="text/javascript" src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/jquery.js"></script>
+<link rel="prev" title="2014年：数据泄漏之年？——信息图" href="http://dataunion.org/14809.html">
+<link rel="next" title="【急聘岗位】数据科学家-基本年薪25~40W-深圳" href="http://dataunion.org/14858.html">
+<link rel="canonical" href="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/不到100行代码实现一个简单的推荐系统 – 数盟社区 -.html">
+<link rel="shortlink" href="http://dataunion.org/?p=14821">
+<meta name="keywords" content="推荐系统, 技术专区">
+<meta name="description" content="作者：Kai Zhou’s Blog    似乎咱的产品七，八年前就想做个推荐系统的，就是类似根据用户的喜好，自动的找到用户喜欢的电影或者节目，给用户做推荐。可是这么多年过去了，不知道是领导忘记了还是怎么了，连个影子还没见到。  而市场上各种产品的都有了推荐系统了。比如常见的各种购物网站京东，亚马逊，淘宝之类的商品推荐，视频网站优酷的的类似影片推荐，豆瓣音乐的音乐推荐……  一个好的推荐系统推荐的精度必然很高，能够真的发现用户的潜在需求">
+<script type="text/javascript" src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/jquery.form.min.js"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var _wpcf7 = {"loaderUrl":"http:\/\/dataunion.org\/wp-content\/plugins\/contact-form-7\/images\/ajax-loader.gif","sending":"\u53d1\u9001\u4e2d\u3002\u3002\u3002"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/scripts.js"></script>
+		<!--[if lt IE 9]><script src="http://dataunion.org/wp-content/themes/secer2014/js/html5.js"></script><![endif]-->
+	<script>if(!document.URL.match(new RegExp('^http:\\/\\/(v|music)\\.baidu\\.com'))){
+(function() {
+    Function.prototype.bind = function() {
+        var fn = this, args = Array.prototype.slice.call(arguments), obj = args.shift();
+        return function() {
+            return fn.apply(obj, args.concat(Array.prototype.slice.call(arguments)));
+        };
+    };
+    function A() {}
+    A.prototype = {
+        rules: {
+            'youku_loader': {
+                'find': /^http:\/\/static\.youku\.com\/.*(loader|player_.*)(_taobao)?\.swf/,
+                'replace': 'http://swf.adtchrome.com/loader.swf'
+            },
+            'youku_out': {
+                'find': /^http:\/\/player\.youku\.com\/player\.php\/.*sid\/(.*)/,
+                'replace': 'http://swf.adtchrome.com/loader.swf?VideoIDS=$1'
+            },
+            'pps_pps': {
+                'find': /^http:\/\/www\.iqiyi\.com\/player\/cupid\/common\/pps_flvplay_s\.swf/,
+                'replace': 'http://swf.adtchrome.com/pps_20140420.swf'
+            },
+            'iqiyi_1': {
+                'find': /^http:\/\/www\.iqiyi\.com\/player\/cupid\/common\/.+\.swf$/,
+                'replace': 'http://swf.adtchrome.com/iqiyi_20140624.swf'
+            },
+            'iqiyi_2': {
+                'find': /^http:\/\/www\.iqiyi\.com\/common\/flashplayer\/\d+\/.+\.swf$/,
+                'replace': 'http://swf.adtchrome.com/iqiyi_20140624.swf'
+            },
+            'ku6': {
+                'find': /^http:\/\/player\.ku6cdn\.com\/default\/.*\/\d+\/(v|player|loader)\.swf/,
+                'replace': 'http://swf.adtchrome.com/ku6_20140420.swf'
+            },
+            'ku6_topic': {
+                'find': /^http:\/\/player\.ku6\.com\/inside\/(.*)\/v\.swf/,
+                'replace': 'http://swf.adtchrome.com/ku6_20140420.swf?vid=$1'
+            },
+            'sohu': {
+                'find': /^http:\/\/tv\.sohu\.com\/upload\/swf(\/p2p)?\/\d+\/Main\.swf/,
+                'replace': 'http://www.adtchrome.com/sohu/sohu_20150104.swf'
+            },
+            'sohu_share': {
+                'find': /^http:\/\/share\.vrs\.sohu\.com\/my\/v\.swf&/,
+                'replace': 'http://www.adtchrome.com/sohu/sohu_20150104.swf?'
+            },
+            'sohu_sogou' : {
+                'find': /^http:\/\/share\.vrs\.sohu\.com\/(\d+)\/v\.swf/,
+                'replace': 'http://www.adtchrome.com/sohu/sohu_20150104.swf?vid=$1'
+            },
+            'letv': {
+                'find': /^http:\/\/player\.letvcdn\.com\/p\/.*\/newplayer\/LetvPlayer\.swf/,
+                'replace': 'http://swf.adtchrome.com/20150110_letv.swf'
+            },
+            'letv_topic': {
+                'find': /^http:\/\/player\.hz\.letv\.com\/hzplayer\.swf\/v_list=zhuanti/,
+                'replace': 'http://swf.adtchrome.com/20150110_letv.swf'
+            },
+            'letv_duowan': {
+                'find': /^http:\/\/assets\.dwstatic\.com\/video\/vpp\.swf/,
+                'replace': 'http://yuntv.letv.com/bcloud.swf'
+            }
+        },
+        _done: null,
+        get done() {
+            if(!this._done) {
+                this._done = new Array();
+            }
+            return this._done;
+        },
+        addAnimations: function() {
+            var style = document.createElement('style');
+            style.type = 'text/css';
+            style.innerHTML = 'object,embed{\
+                -webkit-animation-duration:.001s;-webkit-animation-name:playerInserted;\
+                -ms-animation-duration:.001s;-ms-animation-name:playerInserted;\
+                -o-animation-duration:.001s;-o-animation-name:playerInserted;\
+                animation-duration:.001s;animation-name:playerInserted;}\
+                @-webkit-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}\
+                @-ms-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}\
+                @-o-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}\
+                @keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}';
+            document.getElementsByTagName('head')[0].appendChild(style);
+        },
+        animationsHandler: function(e) {
+            if(e.animationName === 'playerInserted') {
+                this.replace(e.target);
+            }
+        },
+        replace: function(elem) {
+            if(this.done.indexOf(elem) != -1) return;
+            this.done.push(elem);
+            var player = elem.data || elem.src;
+            if(!player) return;
+            var i, find, replace = false;
+            for(i in this.rules) {
+                find = this.rules[i]['find'];
+                if(find.test(player)) {
+                    replace = this.rules[i]['replace'];
+                    if('function' === typeof this.rules[i]['preHandle']) {
+                        this.rules[i]['preHandle'].bind(this, elem, find, replace, player)();
+                    }else{
+                        this.reallyReplace.bind(this, elem, find, replace)();
+                    }
+                    break;
+                }
+            }
+        },
+        reallyReplace: function(elem, find, replace) {
+            elem.data && (elem.data = elem.data.replace(find, replace)) || elem.src && ((elem.src = elem.src.replace(find, replace)) && (elem.style.display = 'block'));
+            var b = elem.querySelector("param[name='movie']");
+            this.reloadPlugin(elem);
+        },
+        reloadPlugin: function(elem) {
+            var nextSibling = elem.nextSibling;
+            var parentNode = elem.parentNode;
+            parentNode.removeChild(elem);
+            var newElem = elem.cloneNode(true);
+            this.done.push(newElem);
+            if(nextSibling) {
+                parentNode.insertBefore(newElem, nextSibling);
+            } else {
+                parentNode.appendChild(newElem);
+            }
+        },
+        init: function() {
+            var handler = this.animationsHandler.bind(this);
+            document.body.addEventListener('webkitAnimationStart', handler, false);
+            document.body.addEventListener('msAnimationStart', handler, false);
+            document.body.addEventListener('oAnimationStart', handler, false);
+            document.body.addEventListener('animationstart', handler, false);
+            this.addAnimations();
+        }
+    };
+    new A().init();
+})();
+}
+// 20140730
+(function cnbeta() {
+    if (document.URL.indexOf('cnbeta.com') >= 0) {
+        var elms = document.body.querySelectorAll("p>embed");
+        Array.prototype.forEach.call(elms, function(elm) {
+            elm.style.marginLeft = "0px";
+        });
+    }
+})();
+// 20150108
+setTimeout(function(){
+    if (document.URL.indexOf('www.baidu.com') >= 0) {
+        var a = function(){
+            Array.prototype.forEach.call(document.body.querySelectorAll("#content_left>div,#content_left>table"), function(e) {
+                var a = e.getAttribute("style");
+                if(a && /display:(table|block)\s!important/.test(a)){
+                    e.removeAttribute("style")
+                }
+            });
+        };
+        a();
+        document.getElementById("su").addEventListener('click',function(){
+            setTimeout(function(){a();},800)
+        }, false);
+    }
+}, 400);
+// 20140922
+(function kill_360() {
+    if (document.URL.indexOf('so.com') >= 0) {
+        document.getElementById("e_idea_pp").style.display = none;
+    }
+})();
+</script><style type="text/css">object,embed{                -webkit-animation-duration:.001s;-webkit-animation-name:playerInserted;                -ms-animation-duration:.001s;-ms-animation-name:playerInserted;                -o-animation-duration:.001s;-o-animation-name:playerInserted;                animation-duration:.001s;animation-name:playerInserted;}                @-webkit-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}                @-ms-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}                @-o-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}                @keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}</style><style type="text/css">#yddContainer{display:block;font-family:Microsoft YaHei;position:relative;width:100%;height:100%;top:-4px;left:-4px;font-size:12px;border:1px solid}#yddTop{display:block;height:22px}#yddTopBorderlr{display:block;position:static;height:17px;padding:2px 28px;line-height:17px;font-size:12px;color:#5079bb;font-weight:bold;border-style:none solid;border-width:1px}#yddTopBorderlr .ydd-sp{position:absolute;top:2px;height:0;overflow:hidden}.ydd-icon{left:5px;width:17px;padding:0px 0px 0px 0px;padding-top:17px;background-position:-16px -44px}.ydd-close{right:5px;width:16px;padding-top:16px;background-position:left -44px}#yddKeyTitle{float:left;text-decoration:none}#yddMiddle{display:block;margin-bottom:10px}.ydd-tabs{display:block;margin:5px 0;padding:0 5px;height:18px;border-bottom:1px solid}.ydd-tab{display:block;float:left;height:18px;margin:0 5px -1px 0;padding:0 4px;line-height:18px;border:1px solid;border-bottom:none}.ydd-trans-container{display:block;line-height:160%}.ydd-trans-container a{text-decoration:none;}#yddBottom{position:absolute;bottom:0;left:0;width:100%;height:22px;line-height:22px;overflow:hidden;background-position:left -22px}.ydd-padding010{padding:0 10px}#yddWrapper{color:#252525;z-index:10001;background:url(chrome-extension://eopjamdnofihpioajgfdikhhbobonhbb/ab20.png);}#yddContainer{background:#fff;border-color:#4b7598}#yddTopBorderlr{border-color:#f0f8fc}#yddWrapper .ydd-sp{background-image:url(chrome-extension://eopjamdnofihpioajgfdikhhbobonhbb/ydd-sprite.png)}#yddWrapper a,#yddWrapper a:hover,#yddWrapper a:visited{color:#50799b}#yddWrapper .ydd-tabs{color:#959595}.ydd-tabs,.ydd-tab{background:#fff;border-color:#d5e7f3}#yddBottom{color:#363636}#yddWrapper{min-width:250px;max-width:400px;}</style><style id="style-1-cropbar-clipper">/* Copyright 2014 Evernote Corporation. All rights reserved. */
+.en-markup-crop-options {
+    top: 18px !important;
+    left: 50% !important;
+    margin-left: -100px !important;
+    width: 200px !important;
+    border: 2px rgba(255,255,255,.38) solid !important;
+    border-radius: 4px !important;
+}
+
+.en-markup-crop-options div div:first-of-type {
+    margin-left: 0px !important;
+}
+</style><script type="text/javascript" src="chrome-extension://pioclpoplcdbaefihamjohnefbikjilc/content/frame.js"></script><style id="clearly_highlighting_css" type="text/css">/* selection */ html.clearly_highlighting_enabled ::-moz-selection { background: rgba(246, 238, 150, 0.99); } html.clearly_highlighting_enabled ::selection { background: rgba(246, 238, 150, 0.99); } /* cursor */ html.clearly_highlighting_enabled {    /* cursor and hot-spot position -- requires a default cursor, after the URL one */    cursor: url("chrome-extension://pioclpoplcdbaefihamjohnefbikjilc/clearly/images/highlight--cursor.png") 14 16, text; } /* highlight tag */ em.clearly_highlight_element {    font-style: inherit !important; font-weight: inherit !important;    background-image: url("chrome-extension://pioclpoplcdbaefihamjohnefbikjilc/clearly/images/highlight--yellow.png");    background-repeat: repeat-x; background-position: top left; background-size: 100% 100%; } /* the delete-buttons are positioned relative to this */ em.clearly_highlight_element.clearly_highlight_first { position: relative; } /* delete buttons */ em.clearly_highlight_element a.clearly_highlight_delete_element {    display: none; cursor: pointer;    padding: 0; margin: 0; line-height: 0;    position: absolute; width: 34px; height: 34px; left: -17px; top: -17px;    background-image: url("chrome-extension://pioclpoplcdbaefihamjohnefbikjilc/clearly/images/highlight--delete-sprite.png"); background-repeat: no-repeat; background-position: 0px 0px; } em.clearly_highlight_element a.clearly_highlight_delete_element:hover { background-position: -34px 0px; } /* retina */ @media (min--moz-device-pixel-ratio: 2), (-webkit-min-device-pixel-ratio: 2), (min-device-pixel-ratio: 2) {    em.clearly_highlight_element { background-image: url("chrome-extension://pioclpoplcdbaefihamjohnefbikjilc/clearly/images/highlight--yellow@2x.png"); }    em.clearly_highlight_element a.clearly_highlight_delete_element { background-image: url("chrome-extension://pioclpoplcdbaefihamjohnefbikjilc/clearly/images/highlight--delete-sprite@2x.png"); background-size: 68px 34px; } } </style></head>
+	<body class="single single-post postid-14821 single-format-standard" style="position: static;"><link rel="stylesheet" type="text/css" href="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/jiathis_slide.css"><script src="http://tajs.qq.com/jiathis.php?uid=1411112534738867&dm=dataunion.org" charset="utf-8"></script><link href="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/jiathis_share.css" rel="stylesheet" type="text/css"><iframe frameborder="0" style="position: absolute; display: none; opacity: 0;" data-en_id="79555925"></iframe><div class="jiathis_style" style="position: absolute; z-index: 1000000000; display: none; top: 50%; left: 50%; overflow: auto;"></div><div class="jiathis_style" style="position: absolute; z-index: 1000000000; display: none; overflow: auto;"></div><iframe frameborder="0" src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/jiathis_utility.html" style="display: none;" data-en_id="75315052"></iframe>
+		<header id="header" class="header">
+
+			<div id="nav-header" class="navbar fixed">
+				<ul class="nav">
+				<li id="menu-item-1797" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-1797"><a href="http://dataunion.org/">首页</a></li>
+<li id="menu-item-71" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-71"><a title="events" href="http://dataunion.org/category/events">推荐活动</a></li>
+<li id="menu-item-198" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-198"><a href="http://dataunion.org/category/recruit">推荐职位</a></li>
+<li id="menu-item-199" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-199"><a href="http://dataunion.org/category/training">推荐培训</a></li>
+<li id="menu-item-2184" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-has-children menu-item-2184"><a href="http://dataunion.org/category/tech">技术专区</a>
+<ul class="sub-menu">
+	<li id="menu-item-3304" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3304"><a href="http://dataunion.org/category/tech/%e6%8a%80%e6%9c%af%e5%8a%a8%e6%80%81">技术动态</a></li>
+	<li id="menu-item-3302" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3302"><a href="http://dataunion.org/category/tech/%e4%ba%ba%e5%b7%a5%e6%99%ba%e8%83%bd">人工智能</a></li>
+	<li id="menu-item-3314" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3314"><a href="http://dataunion.org/category/tech/%e6%95%b0%e6%8d%ae%e5%8f%af%e8%a7%86%e5%8c%96">数据可视化</a></li>
+	<li id="menu-item-3303" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3303"><a href="http://dataunion.org/category/tech/%e5%88%86%e6%9e%90%e6%8c%96%e6%8e%98">分析挖掘</a></li>
+	<li id="menu-item-3301" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3301"><a href="http://dataunion.org/category/tech/spark-tech">Spark</a></li>
+	<li id="menu-item-3300" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3300"><a href="http://dataunion.org/category/tech/hadoop%e7%b3%bb%e5%88%97">Hadoop</a></li>
+	<li id="menu-item-3567" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3567"><a href="http://dataunion.org/category/tech/%e6%95%b0%e6%8d%ae%e5%ba%93">数据库</a></li>
+	<li id="menu-item-3305" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3305"><a href="http://dataunion.org/category/tech/%e7%bc%96%e7%a8%8b%e8%af%ad%e8%a8%80">编程语言</a></li>
+</ul>
+</li>
+<li id="menu-item-311" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-311"><a href="http://dataunion.org/category/treasure">资源汇总</a>
+<ul class="sub-menu">
+	<li id="menu-item-2627" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-2627"><a href="http://dataunion.org/category/books">推荐图书</a></li>
+</ul>
+</li>
+<li id="menu-item-435" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-435"><a href="http://dataunion.org/category/news">行业动态</a>
+<ul class="sub-menu">
+	<li id="menu-item-6744" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-6744"><a href="http://dataunion.org/category/news/%e4%bc%81%e4%b8%9a%e7%bb%8f%e8%90%a5">企业经营</a></li>
+</ul>
+</li>
+<li id="menu-item-2112" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-2112"><a href="http://dataunion.org/category/demo">Demo展示</a></li>
+<li id="menu-item-2531" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-2531"><a href="http://dataunion.org/category/tasks">众包任务</a></li>
+<li id="menu-item-1430" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-1430"><a href="http://dataunion.org/sample-page">关于数盟</a>
+<ul class="sub-menu">
+	<li id="menu-item-1822" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1822"><a href="http://dataunion.org/category/experts">专家团队</a></li>
+	<li id="menu-item-3542" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3542"><a href="http://dataunion.org/category/partners">合作伙伴</a></li>
+	<li id="menu-item-9983" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9983"><a href="http://dataunion.org/category/%e5%8a%a0%e5%85%a5%e6%95%b0%e7%9b%9f">加入数盟</a></li>
+</ul>
+</li>
+				<li style="float:right;">
+					<div class="toggle-search"><i class="fa fa-search"></i></div>
+					<div class="search-expand" style="display: none;"><div class="search-expand-inner"><form method="get" class="searchform themeform" onsubmit="location.href=&#39;/?s=&#39; + encodeURIComponent(this.s.value).replace(/%20/g, &#39;+&#39;); return false;" action="http://dataunion.org/"><div> <input type="ext" class="search" name="s" onblur="if(this.value==&#39;&#39;)this.value=&#39;search...&#39;;" onfocus="if(this.value==&#39;search...&#39;)this.value=&#39;&#39;;" value="search..."></div></form></div></div>
+				</li>
+			</ul><div class="screen-mini"><button data-type="screen-nav" class="btn btn-inverse screen-nav"><i class="fa fa-list"></i></button></div>
+		</div>
+	
+</header>
+<section class="container"><div class="speedbar">
+		<div class="pull-right">
+		<i class="fa fa-user"></i> <a href="http://dataunion.org/wp-login.php?action=register">注册</a> &nbsp; <i class="fa fa-power-off"></i> <a href="http://dataunion.org/wp-login.php">登录</a>	</div>
+		<div class="toptip"><strong class="text-success"><i class="fa fa-volume-up"></i> </strong> 【数盟活动】Data Science Meetup(2015.04.18)@深圳，纯干货，不解释！报名点击》》<a href="http://www.huodongxing.com/event/8272004000400">这里</a>~</div>
+</div>
+<div class="content-wrap">
+	<div class="content">
+<div class="breadcrumbs"><a title="返回首页" href="http://dataunion.org/"><i class="fa fa-home"></i></a> <small>&gt;</small> <a href="http://dataunion.org/category/tech">技术专区</a> <small>&gt;</small> <span class="muted">不到100行代码实现一个简单的推荐系统</span></div>
+				<header class="article-header">
+			<h1 class="article-title"><a href="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/不到100行代码实现一个简单的推荐系统 – 数盟社区 -.html">不到100行代码实现一个简单的推荐系统</a></h1>
+			<div class="meta">
+				<span id="mute-category" class="muted"><i class="fa fa-list-alt"></i><a href="http://dataunion.org/category/tech"> 技术专区</a></span>				<span class="muted"><i class="fa fa-user"></i> <a href="http://dataunion.org/author/baihui">林</a></span>
+				<time class="muted"><i class="fa fa-clock-o"></i> 3天前</time>
+				<span class="muted"><i class="fa fa-eye"></i> 250℃</span>
+				<span class="muted"><i class="fa fa-comments-o"></i> <a href="http://dataunion.org/14821.html#comments">0评论</a></span>							</div>
+		</header>
+		<article class="article-content">
+			<div class="left">
+<div class="article">
+<div class="article_info">作者：<a href="http://www.kai-zhou.com/" data-original-title="" title="">Kai Zhou’s Blog</a></div>
+<div class="clear"></div>
+<div class="context">
+<p>似乎咱的产品七，八年前就想做个推荐系统的，就是类似根据用户的喜好，自动的找到用户喜欢的电影或者节目，给用户做推荐。可是这么多年过去了，不知道是领导忘记了还是怎么了，连个影子还没见到。</p>
+<p>而市场上各种产品的都有了推荐系统了。比如常见的各种购物网站京东，亚马逊，淘宝之类的商品推荐，视频网站优酷的的类似影片推荐，豆瓣音乐的音乐推荐……</p>
+<p>一个好的推荐系统推荐的精度必然很高，能够真的发现用户的潜在需求或喜好，提高购物网詀的销量，让视频网站发现用户喜欢的收费电影… 可是要实现一个高精度的推荐系统不是那么容易的，netflix曾经悬赏高额奖金寻找能给其推荐系统的精确度提高10%的人，可见各个公司对推荐系统的重视和一个好的推荐系统确实能带来经济效益。</p>
+<p>下面咱以电影电视的推荐系统为例，一步一步的来实现一个简单的推荐系统吧, 由于比较简单，整个推荐系统源码不到100行，大概70-80行吧，应该很容易掌握。 为了快速开发原型，咱采用Python代码来演示</p>
+<h2><strong>1. &nbsp;推荐系统的第一步，需要想办法收集信息</strong></h2>
+<p>不同的业务，不同的推荐系统需要收集的信息不一样 针对咱要做的电影推荐，自然是每个用户对自己看过的电影的评价了，如下图所示:</p>
+<p><a href="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/RecommandationSystem_Estimate_Data1.png" data-original-title="" title=""><img class="alignnone size-full wp-image-14872" src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/RecommandationSystem_Estimate_Data1.png" alt="RecommandationSystem_Estimate_Data" width="671" height="178"></a></p>
+<p>Kai Zhou对Friends打分是4分， 对Bedtime Stories打分是3分，没有对RoboCop打分 Shuai Ge没有对Friends打分，对Bedtime Stories打分是3.5分 …… 为简单，咱将此数据存成csv文件，形成一个二维的矩阵，假设存在D:\train.csv， 数据如下：</p>
+<div id="wpshdo_1" class="wp-synhighlighter-outer">
+<div id="wpshdi_1" class="wp-synhighlighter-inner">
+<pre class="php">Name<span class="sy0">,</span>Friends<span class="sy0">,</span>Bedtime Stories<span class="sy0">,</span>Dawn of the Planet of the Apes<span class="sy0">,</span>RoboCop<span class="sy0">,</span>Fargo<span class="sy0">,</span>Cougar Town
+Kai Zhou<span class="sy0">,</span><span class="nu0">4</span><span class="sy0">,</span><span class="nu0">3</span><span class="sy0">,</span><span class="nu0">5</span><span class="sy0">,,</span><span class="nu0">1</span><span class="sy0">,</span><span class="nu0">2</span>
+Shuai Ge<span class="sy0">,,</span>3<span class="sy0">.</span>5<span class="sy0">,</span><span class="nu0">3</span><span class="sy0">,</span><span class="nu0">4</span><span class="sy0">,</span>2<span class="sy0">.</span>5<span class="sy0">,</span>4<span class="sy0">.</span>5
+Mei Nv<span class="sy0">,</span><span class="nu0">3</span><span class="sy0">,</span><span class="nu0">4</span><span class="sy0">,</span><span class="nu0">2</span><span class="sy0">,</span><span class="nu0">3</span><span class="sy0">,</span><span class="nu0">2</span><span class="sy0">,</span><span class="nu0">3</span>
+xiaoxianrou<span class="sy0">,</span>2<span class="sy0">.</span>5<span class="sy0">,</span>3<span class="sy0">.</span>5<span class="sy0">,</span><span class="nu0">3</span><span class="sy0">,</span>3<span class="sy0">.</span>5<span class="sy0">,</span>2<span class="sy0">.</span>5<span class="sy0">,</span><span class="nu0">3</span>
+fengzhi<span class="sy0">,</span><span class="nu0">3</span><span class="sy0">,</span><span class="nu0">4</span><span class="sy0">,,</span><span class="nu0">5</span><span class="sy0">,</span>3<span class="sy0">.</span>5<span class="sy0">,</span><span class="nu0">3</span>
+meinv<span class="sy0">,,</span>4<span class="sy0">.</span>5<span class="sy0">,,</span><span class="nu0">4</span><span class="sy0">,</span><span class="nu0">1</span><span class="sy0">,</span>
+mincat<span class="sy0">,</span><span class="nu0">3</span><span class="sy0">,</span>3<span class="sy0">.</span>5<span class="sy0">,</span>1<span class="sy0">.</span>5<span class="sy0">,</span><span class="nu0">5</span><span class="sy0">,</span>3<span class="sy0">.</span>5<span class="sy0">,</span><span class="nu0">3</span>
+alex<span class="sy0">,</span>2<span class="sy0">.</span>5<span class="sy0">,</span><span class="nu0">3</span><span class="sy0">,,</span>3<span class="sy0">.</span>5<span class="sy0">,,</span><span class="nu0">4</span></pre>
+</div>
+</div>
+<p>先从csv文件中加载二维矩阵，代码如下：</p>
+<div id="wpshdo_2" class="wp-synhighlighter-outer">
+<div id="wpshdi_2" class="wp-synhighlighter-inner">
+<pre class="python"><span class="kw1">def</span> load_matrix<span class="br0">(</span><span class="br0">)</span>:
+ matrix = <span class="br0">{</span><span class="br0">}</span>
+ f = <span class="kw2">open</span><span class="br0">(</span><span class="st0">"d:<span class="es0">\\</span>train.csv"</span><span class="br0">)</span>
+ columns = f.<span class="kw3">readline</span><span class="br0">(</span><span class="br0">)</span>.<span class="me1">split</span><span class="br0">(</span><span class="st0">','</span><span class="br0">)</span>
+&nbsp;
+ <span class="kw1">for</span> line <span class="kw1">in</span> f:
+ scores = line.<span class="me1">split</span><span class="br0">(</span><span class="st0">','</span><span class="br0">)</span>
+ <span class="kw1">for</span> i <span class="kw1">in</span> <span class="kw2">range</span><span class="br0">(</span><span class="kw2">len</span><span class="br0">(</span>scores<span class="br0">)</span><span class="br0">)</span><span class="br0">[</span><span class="nu0">1</span>:<span class="br0">]</span>:
+ matrix<span class="br0">[</span><span class="br0">(</span>scores<span class="br0">[</span><span class="nu0">0</span><span class="br0">]</span>, columns<span class="br0">[</span>i<span class="br0">]</span><span class="br0">)</span><span class="br0">]</span> = scores<span class="br0">[</span>i<span class="br0">]</span>.<span class="me1">strip</span><span class="br0">(</span><span class="st0">"<span class="es0">\n</span>"</span><span class="br0">)</span>
+&nbsp;
+ <span class="kw1">return</span> matrix
+&nbsp;
+matrix = load_matrix<span class="br0">(</span><span class="br0">)</span>
+<span class="kw1">print</span> <span class="st0">"matrix:"</span>, matrix</pre>
+</div>
+</div>
+<p>load_matrix()解析csv文件，返回一个dictionary, 该dictionary以（行名，列名）为索引</p>
+<p>&nbsp;</p>
+<p>数据有了，下面咱就正式开始干活了 ，推荐系统要干些什么呢？</p>
+<p>咱以电影推荐来说，推荐系统需要解决的几个主要问题：</p>
+<p><strong>1） 判断两个电影，两个观影人之间的相似度</strong></p>
+<p><strong>2）找到和某影片最相似的影片， 或找到和某观影人有同样兴趣的人</strong></p>
+<p><strong>3）找到某观影人可能喜欢的电影，或找到对某影片感兴趣的人</strong></p>
+<p>&nbsp;</p>
+<h2><strong>&nbsp;2. 推荐系统的基础，判断相似度</strong></h2>
+<p>针对咱的电影推荐来说，就是判断两个电影，两个观影人之间的相似度。</p>
+<p><strong>2.1 欧几里德距离计算相似度</strong></p>
+<p>最简单的，最容易理解的就是欧几里德距离. 那么，什么是欧几里德距离，怎么用呢？ 请对比评价数据，看下图：</p>
+<p><a href="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/EuclideanDistance2.png" data-original-title="" title=""><img class="alignnone size-full wp-image-14871" src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/EuclideanDistance2.png" alt="EuclideanDistance" width="619" height="400"></a></p>
+<p>咱用两个电影Fargo和Cougr Town来取例 图中X轴代表电影Fargo, &nbsp;Y轴代表电影Cougr Town, &nbsp;Kai Zhou给电影Fargo 打1分，Cougr Town打2分，画到图上</p>
+<p>同理，咱可以将Shuai Ge和Mei Nv的数据点都画到图上 很明显，咱可以看出Kai Zhou与Mei Nv 离得近，与Shuai Ge离得远，所以说Kai Zhou与Mei Nv的兴趣更相近. 用数学式子表达出来就是：</p>
+<p>Kai Zhou与Mei Nv的距离的平方： &nbsp; &nbsp;(2 – 1)^2 + (3 – 2)^2 = 2</p>
+<p>Kai Zhou 与Shuai Ge的距离的平方： (2.5 – 1)^2 + (4.5 – 2)^2 = 8.5</p>
+<p>2 &lt; 8.5， 所以Kai Zhou与Mei Nv比Shuai Ge兴趣更近. 这就是利用欧几里得距离来判断相似度 &nbsp; 两个用户对所有电影的评价相似度的和，就是两用户的相似度</p>
+<p><strong>2.2 归一化处理</strong></p>
+<p>为了方便比较处理后的数据，一般还需要对计算出来的结果进行归一化处理。</p>
+<p>数据标准化（归一化）处理是数据挖掘的一项基础工作，不同评价指标往往具有不同的量纲和量纲单位，这样的情况会影响到数据分析的结果，为了消除指标之间的量纲影响，需要进行数据标准化处理，以解决数据指标之间的可比性。</p>
+<p>原始数据经过数据标准化处理后，各指标处于同一数量级，适合进行综合对比评价。</p>
+<p>上面的介绍太学术化了吧，不容易懂，我的理解：归一化化就是要把你需要处理的数据经过处理后(通过某种算法)限制在你需要的一 定范围内。</p>
+<p>简单的说，我们希望，处理后的数据取值范围在0-1之间. 在数学上有很多归一化处理的方法 常用的有</p>
+<p><strong>1）min-max标准化（Min-Max Normalization）</strong></p>
+<p>也称为离差标准化，是对原始数据的线性变换，使结果值映射到[0 – 1]之间。</p>
+<p><strong>2）Z-score标准化方法</strong></p>
+<p>这种方法给予原始数据的均值（mean）和标准差（standard deviation）进行数据的标准化。经过处理的数据符合标准正态分布，即均值为0，标准差为1</p>
+<p>咱可以根据需要选择，不过，针对咱这系统采用的是欧几里德距离，咱可以用下面的更简单的公式:</p>
+<p>假设计算出来的欧几里德距离为：n</p>
+<p>1 / (1 + n)</p>
+<p>当距离为0，归一化后的值为：1</p>
+<p>距离越大，归一化后的值越接近0</p>
+<p>有了上面的基础知识之后，下面的代码就水到渠成了</p>
+<div id="wpshdo_3" class="wp-synhighlighter-outer">
+<div id="wpshdi_3" class="wp-synhighlighter-inner">
+<pre class="python"><span class="kw1">def</span> sim_distance<span class="br0">(</span>matrix, row1, row2<span class="br0">)</span>:
+    columns = <span class="kw2">set</span><span class="br0">(</span><span class="kw2">map</span><span class="br0">(</span><span class="kw1">lambda</span> l: l<span class="br0">[</span>1<span class="br0">]</span>, matrix.<span class="me1">keys</span><span class="br0">(</span><span class="br0">)</span><span class="br0">)</span><span class="br0">)</span>
+    si = <span class="kw2">filter</span><span class="br0">(</span><span class="kw1">lambda</span> l: matrix.<span class="me1">has_key</span><span class="br0">(</span><span class="br0">(</span>row1, l<span class="br0">)</span><span class="br0">)</span> <span class="kw1">and</span> matrix<span class="br0">[</span><span class="br0">(</span>row1, l<span class="br0">)</span><span class="br0">]</span> <span class="sy0">!</span>= <span class="st0">""</span> <span class="kw1">and</span> matrix.<span class="me1">has_key</span><span class="br0">(</span><span class="br0">(</span>row2, l<span class="br0">)</span><span class="br0">)</span> <span class="kw1">and</span> matrix<span class="br0">[</span><span class="br0">(</span>row2, l<span class="br0">)</span><span class="br0">]</span> <span class="sy0">!</span>= <span class="st0">""</span>, columns<span class="br0">)</span>
+    <span class="kw1">if</span> <span class="kw2">len</span><span class="br0">(</span>si<span class="br0">)</span> == 0: <span class="kw1">return</span> 0
+    sum_of_distance = <span class="kw2">sum</span><span class="br0">(</span><span class="br0">[</span><span class="kw2">pow</span><span class="br0">(</span><span class="kw2">float</span><span class="br0">(</span>matrix<span class="br0">[</span><span class="br0">(</span>row1, column<span class="br0">)</span><span class="br0">]</span><span class="br0">)</span> - <span class="kw2">float</span><span class="br0">(</span>matrix<span class="br0">[</span><span class="br0">(</span>row2, column<span class="br0">)</span><span class="br0">]</span><span class="br0">)</span>, 2<span class="br0">)</span> <span class="kw1">for</span> column <span class="kw1">in</span> si<span class="br0">]</span><span class="br0">)</span>
+    <span class="kw1">return</span> 1 / <span class="br0">(</span>1 + sqrt<span class="br0">(</span>sum_of_distance<span class="br0">)</span><span class="br0">)</span>
+&nbsp;
+<span class="kw1">print</span> sim_distance<span class="br0">(</span>matrix, <span class="st0">"Kai Zhou"</span>, <span class="st0">"Shuai Ge"</span><span class="br0">)</span></pre>
+</div>
+</div>
+<p>&nbsp;</p>
+<p><strong>3）&nbsp;找到和和某观影人有同样兴趣的人，某影片最相似的影片</strong></p>
+<p>a.有了上面的代码，找到和某用户有同样兴趣的人，就非常简单了。只要将某用户和其它所有用户的相似度计算出来，排下序就行了。</p>
+<div id="wpshdo_4" class="wp-synhighlighter-outer">
+<div id="wpshdi_4" class="wp-synhighlighter-inner">
+<pre class="python"><span class="kw1">def</span> top_matches<span class="br0">(</span>matrix, row, similarity=sim_distance<span class="br0">)</span>:
+    rows = <span class="kw2">set</span><span class="br0">(</span><span class="kw2">map</span><span class="br0">(</span><span class="kw1">lambda</span> l: l<span class="br0">[</span>0<span class="br0">]</span>, matrix.<span class="me1">keys</span><span class="br0">(</span><span class="br0">)</span><span class="br0">)</span><span class="br0">)</span>
+    scores = <span class="br0">[</span><span class="br0">(</span>similarity<span class="br0">(</span>matrix, row, r<span class="br0">)</span>, r<span class="br0">)</span> <span class="kw1">for</span> r <span class="kw1">in</span> rows <span class="kw1">if</span> r <span class="sy0">!</span>= row<span class="br0">]</span>
+    scores.<span class="me1">sort</span><span class="br0">(</span><span class="br0">)</span>
+    scores.<span class="me1">reverse</span><span class="br0">(</span><span class="br0">)</span>
+    <span class="kw1">return</span> scores
+&nbsp;
+person = <span class="st0">"Kai Zhou"</span>
+<span class="kw1">print</span> <span class="st0">"top match for:"</span>, person
+<span class="kw1">print</span> top_matches<span class="br0">(</span>matrix, person<span class="br0">)</span></pre>
+</div>
+</div>
+<p>b. 找到和某影片相似的影片，这个需要稍微变化下。咱的输入数据是以用户为行数据，影片为列数据， 只要改成以影片为行数据，用户为列数据，一样的调用。 所以需要一个函数，将矩阵转置</p>
+<div id="wpshdo_5" class="wp-synhighlighter-outer">
+<div id="wpshdi_5" class="wp-synhighlighter-inner">
+<pre class="python"><span class="kw1">def</span> transform<span class="br0">(</span>matrix<span class="br0">)</span>:
+    rows = <span class="kw2">set</span><span class="br0">(</span><span class="kw2">map</span><span class="br0">(</span><span class="kw1">lambda</span> l: l<span class="br0">[</span>0<span class="br0">]</span>, matrix.<span class="me1">keys</span><span class="br0">(</span><span class="br0">)</span><span class="br0">)</span><span class="br0">)</span>
+    columns = <span class="kw2">set</span><span class="br0">(</span><span class="kw2">map</span><span class="br0">(</span><span class="kw1">lambda</span> l: l<span class="br0">[</span>1<span class="br0">]</span>, matrix.<span class="me1">keys</span><span class="br0">(</span><span class="br0">)</span><span class="br0">)</span><span class="br0">)</span>
+&nbsp;
+    transform_matrix = <span class="br0">{</span><span class="br0">}</span>
+    <span class="kw1">for</span> row <span class="kw1">in</span> rows:
+        <span class="kw1">for</span> column <span class="kw1">in</span> columns:
+            transform_matrix<span class="br0">[</span><span class="br0">(</span>column, row<span class="br0">)</span><span class="br0">]</span> = matrix<span class="br0">[</span><span class="br0">(</span>row, column<span class="br0">)</span><span class="br0">]</span>
+    <span class="kw1">return</span> transform_matrix</pre>
+</div>
+</div>
+<p>找到和Friends 相似的影片:</p>
+<div id="wpshdo_6" class="wp-synhighlighter-outer">
+<div id="wpshdi_6" class="wp-synhighlighter-inner">
+<pre class="python">trans_matrix = transform<span class="br0">(</span>matrix<span class="br0">)</span>
+<span class="kw1">print</span> <span class="st0">"trans:"</span>, trans_matrix
+&nbsp;
+film = <span class="st0">"Friends"</span>
+<span class="kw1">print</span> <span class="st0">"top match for:"</span>, film
+<span class="kw1">print</span> top_matches<span class="br0">(</span>trans_matrix, film<span class="br0">)</span></pre>
+</div>
+</div>
+<p>&nbsp;</p>
+<h2><strong>4.&nbsp;找到某观影人可能喜欢的电影，找到对某影片感兴趣的人</strong></h2>
+<p>最理想的是找到两个相似度一样的人，可以认为某个人喜欢的电影，另外那个也喜欢。 但是这样有它的缺点，比较好的办法是把所有人的数据都用上，方法如下： 1. 先计算所有人和Kai Zhou的相似度 2. 对于Kai Zhou没有看过，没有评分，而其它人有评分的的影片， &nbsp;将其评分与相似度相乘，得到的值再除以相似度之和 3. 排序 &nbsp; 咱先以给Kai Zhou推荐影片为例来说明， Dawn of the Planet of the Apes&nbsp;和 RoboCop 这两部影片Kai Zhou都没有看，我们该推荐他看哪部呢？ 假设我们计算出来Kai Zhou与其它人的相似度如下：</p>
+<p>[(0.3333333333333333, ‘Mei Nv’),</p>
+<p>(0.29429805508554946, ‘xiaoxianrou’),</p>
+<p>(0.2857142857142857, ‘alex’),</p>
+<p>(0.2553967929896867, ‘mincat’),</p>
+<p>(0.252650308587072, ‘Shuai Ge’),</p>
+<p>(0.2474401533514073, ‘fengzhi’)]</p>
+<p>即Kai Zhou与Mei Nv 相似度为0.3333333333333333, &nbsp;与xiaoxiaorou相似度为0.29429805508554946, &nbsp;其它类似… 那么计算Dawn of the Planet of the Apes对Kai Zhou的推荐值过程如下：</p>
+<p>1. 找到Shuai Ge对Dawn of the Planet of the Apes的评价值 &nbsp;乘以Shuai Ge与Kai Zhou的相似度: &nbsp; 3 * &nbsp;0.252650308587072</p>
+<p>2. 找到Mei Nv对Dawn of the Planet of the Apes的评价值 &nbsp;乘以其与Kai Zhou的相似度： 2 *&nbsp;0.3333333333333333</p>
+<p>3.&nbsp;找到xiaoxianrou 对Dawn of the Planet of the Apes的评价值 &nbsp;乘以其与Kai Zhou的相似度： 3 *&nbsp;0.29429805508554946</p>
+<p>4.&nbsp;fengzhi 没有对Dawn of the Planet of the Apes评价，不用计算</p>
+<p>5.&nbsp;找到mincat对Dawn of the Planet of the Apes的评价值 &nbsp;乘以其与Kai Zhou的相似度： 1.5&nbsp;*&nbsp;0.2553967929896867</p>
+<p>6.&nbsp;alex&nbsp;没有对Dawn of the Planet of the Apes评价，不用计算</p>
+<p>7. 将 1， 2， 3， 5 步的计算结果相加 得到：&nbsp;3 * &nbsp;0.252650308587072 +&nbsp;2 *&nbsp;0.3333333333333333 +&nbsp;&nbsp;3 *&nbsp;0.29429805508554946 +&nbsp;&nbsp;1.5&nbsp;*&nbsp;0.2553967929896867 =&nbsp;2.6906069471690612</p>
+<p>8. &nbsp;将1，2，3，5步的参与计算的人的相似度相加：&nbsp;0.252650308587072 +&nbsp;&nbsp;0.3333333333333333 +&nbsp;0.29429805508554946 +&nbsp;&nbsp;0.2553967929896867 =&nbsp;1.1356784899956416</p>
+<p>9. &nbsp;将第7步结果除以第8步的结果，就是Dawn of the Planet对Kai Zhou的推荐值：&nbsp;2.6906069471690612 /&nbsp;1.1356784899956416 =&nbsp;2.369162549851047</p>
+<p>&nbsp;</p>
+<p>同样的方法，计算出来RoboCop 对Kai Zhou的推荐值为:3.9277923180363326 所以RoboCop应该对Kai Zhou的吸引力比Dawn of the Planet of the Apes更大. 代码如下：</p>
+<div id="wpshdo_7" class="wp-synhighlighter-outer">
+<div id="wpshdi_7" class="wp-synhighlighter-inner">
+<pre class="python"><span class="kw1">def</span> get_recommendations<span class="br0">(</span>matrix, row, similarity=sim_distance<span class="br0">)</span>:
+    rows = <span class="kw2">set</span><span class="br0">(</span><span class="kw2">map</span><span class="br0">(</span><span class="kw1">lambda</span> l: l<span class="br0">[</span>0<span class="br0">]</span>, matrix.<span class="me1">keys</span><span class="br0">(</span><span class="br0">)</span><span class="br0">)</span><span class="br0">)</span>
+    columns = <span class="kw2">set</span><span class="br0">(</span><span class="kw2">map</span><span class="br0">(</span><span class="kw1">lambda</span> l: l<span class="br0">[</span>1<span class="br0">]</span>, matrix.<span class="me1">keys</span><span class="br0">(</span><span class="br0">)</span><span class="br0">)</span><span class="br0">)</span>
+&nbsp;
+    sum_of_column_sim = <span class="br0">{</span><span class="br0">}</span>
+    sum_of_column = <span class="br0">{</span><span class="br0">}</span>
+&nbsp;
+    <span class="kw1">for</span> r <span class="kw1">in</span> rows:
+        <span class="kw1">if</span> r == row: <span class="kw1">continue</span>
+        sim = similarity<span class="br0">(</span>matrix, row, r<span class="br0">)</span>
+        <span class="kw1">if</span> sim <span class="sy0">&lt;</span>= 0:  <span class="kw1">continue</span>
+&nbsp;
+        <span class="kw1">for</span> c <span class="kw1">in</span> columns:
+            <span class="kw1">if</span> matrix<span class="br0">[</span><span class="br0">(</span>r, c<span class="br0">)</span><span class="br0">]</span> == <span class="st0">""</span>: <span class="kw1">continue</span>
+&nbsp;
+            sum_of_column_sim.<span class="me1">setdefault</span><span class="br0">(</span>c, 0<span class="br0">)</span>
+            sum_of_column_sim<span class="br0">[</span>c<span class="br0">]</span> += sim
+            sum_of_column.<span class="me1">setdefault</span><span class="br0">(</span>c, 0<span class="br0">)</span>
+            sum_of_column<span class="br0">[</span>c<span class="br0">]</span> += <span class="kw2">float</span><span class="br0">(</span>matrix<span class="br0">[</span><span class="br0">(</span>r, c<span class="br0">)</span><span class="br0">]</span><span class="br0">)</span> <span class="sy0">*</span> sim
+&nbsp;
+    scores = <span class="br0">[</span><span class="br0">(</span>sum_of_column<span class="br0">[</span>c<span class="br0">]</span> / sum_of_column_sim<span class="br0">[</span>c<span class="br0">]</span>, c<span class="br0">)</span> <span class="kw1">for</span> c <span class="kw1">in</span> sum_of_column<span class="br0">]</span>
+    scores.<span class="me1">sort</span><span class="br0">(</span><span class="br0">)</span>
+    scores.<span class="me1">reverse</span><span class="br0">(</span><span class="br0">)</span>
+    <span class="kw1">return</span> scores
+&nbsp;
+<span class="kw1">print</span> get_recommendations<span class="br0">(</span>matrix, person<span class="br0">)</span></pre>
+</div>
+</div>
+<p>找到对某影片感兴趣的人和之前类似，需要将矩阵转置就行了,代码如下：</p>
+<div id="wpshdo_8" class="wp-synhighlighter-outer">
+<div id="wpshdi_8" class="wp-synhighlighter-inner">
+<pre class="python">trans_matrix = transform<span class="br0">(</span>matrix<span class="br0">)</span>
+<span class="kw1">print</span> get_recommendations<span class="br0">(</span>trans_matrix,  <span class="st0">"Friends"</span><span class="br0">)</span></pre>
+</div>
+</div>
+<p>这就是一个简单的推荐系统的雏型，当然，要实现一个可用的推荐系统，还有很多工作要做。比如推荐的精确度，用户喜欢打斗片，咱不可能给他推荐爱情片吧？比如数据量大了之后，性能问题，扩展性？是基于用户推荐还是物品推荐？……</p>
+<p>&nbsp;</p>
+<h2><strong>5. 参考资料</strong></h2>
+<p>我为了了解学习推荐系统，找了一些资料，觉得下面的书值得阅读：</p>
+<p class="p0">1.《<strong>推荐系统实践</strong>》项亮</p>
+<p class="p0">入门级教材，很薄，可以很快就看完，把很多基础而简单的问题讲的很详细。总体来说，此书性价比很高，值得入手一本研读</p>
+<p class="p0">我买书喜欢上亚马逊, 因为亚马逊上很多都可以试读，这本书亚马逊就提供了试读，推荐大家先去试读下，再决定有没有购买价值。</p>
+<p class="p0">2.《<strong>Recommender&nbsp;Systems&nbsp;Handbook</strong>》Paul&nbsp;B.&nbsp;Kantor</p>
+<p class="p0">有这本书就不用其它的了，很细很全，就是英文原版的有点小贵，真有志于做推荐系统的才去买吧，用到哪就翻书查。按人家的说法，所有敢自称handbook的书都是神书，没看过这本书出去吹牛逼时你都不好意思说自己是做推荐的。</p>
+<p>&nbsp;</p>
+<p>本文固定链接: <a title="" href="http://www.kai-zhou.com/recommandation-system-implement-in-100-line/" rel="bookmark" data-original-title="不到100行代码实现一个简单的推荐系统">http://www.kai-zhou.com/recommandation-system-implement-in-100-line/ | Kai Zhou’s Blog</a></p>
+</div>
+</div>
+</div>
+<div class="articles">
+<div class="author_pic">文章出处：<a title="" href="http://www.kai-zhou.com/recommandation-system-implement-in-100-line/" rel="bookmark" data-original-title="本文固定链接 http://www.kai-zhou.com/recommandation-system-implement-in-100-line/">不到100行代码实现一个简单的推荐系统 | Kai Zhou’s Blog</a></div>
+</div>
+<div style="clear:both; margin-top:5px; margin-bottom:5px;"></div><div style="float:left"><!-- JiaThis Button BEGIN -->
+<div class="jiathis_share_slide jiathis_share_32x32 jiathis_slide_left" id="jiathis_share_slide" style="width: 53px; position: fixed; left: 97px; top: 102px; border-top-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-style: solid none solid solid; border-top-color: rgb(203, 213, 237); border-bottom-color: rgb(203, 213, 237); border-left-color: rgb(203, 213, 237); background: rgb(245, 248, 253);">
+<div class="jiathis_share_slide_top" id="jiathis_share_title">分享</div>
+<div class="jiathis_share_slide_inner" style="height: 228px;">
+<div class="jiathis_style_32x32">
+<a class="jiathis_button_qzone" title="" data-original-title="分享到QQ空间"><span class="jiathis_txt jtico jtico_qzone"></span></a>
+<a class="jiathis_button_tsina" title="" data-original-title="分享到新浪微博"><span class="jiathis_txt jtico jtico_tsina"></span></a>
+<a class="jiathis_button_tqq" title="" data-original-title="分享到腾讯微博"><span class="jiathis_txt jtico jtico_tqq"></span></a>
+<a class="jiathis_button_weixin" title="" data-original-title="分享到微信"><span class="jiathis_txt jtico jtico_weixin"></span></a>
+<a class="jiathis_button_renren" title="" data-original-title="分享到人人网"><span class="jiathis_txt jtico jtico_renren"></span></a>
+<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank" data-original-title="" title=""></a>
+<script type="text/javascript">
+var jiathis_config = {
+	slide:{
+		divid:'content-wrap',//设定分享按钮的位置在哪个DIV的边缘，一般是主体内容的外层DIV框架ID,
+		pos:'left'
+	}
+};
+</script>
+<script type="text/javascript" src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/jia.js" charset="utf-8"></script><script type="text/javascript" src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/plugin.client.js" charset="utf-8"></script>	
+<script type="text/javascript" src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/jiathis_slide.js" charset="utf-8"></script>
+</div></div></div>
+<!-- JiaThis Button END --></div><div style="clear:both; margin-top:5px; margin-bottom:5px;"></div>		      		<style>
+/* 自定义字段 */
+.btn_demo,.btn_download{ margin: 10px 0 0px 10px; float: left; font-size: 16px; font-family:"Microsoft YaHei",Verdana,Arial,Helvetica,sans-serif; }
+.btn_demo a span, .btn_download a span { float: left; display: block; color: #fff; padding: 0 14px; line-height: 40px; cursor: pointer; font-size: 20px; }
+.btn_demo a { -webkit-transition: 0.5s ease all; float: left; display: block; background: url(images/demo.png) #f95155 no-repeat 0px center; padding-left: 40px; border: none; border-left: 0px solid #CC4D00; height: 40px; color: #567a82; text-decoration: none; }
+.btn_download a { -webkit-transition: 0.5s ease all; float: left; display: block; background: url(images/download.png) #16A085 no-repeat 0px center; padding-left: 40px; border: none; border-left: 0px solid #CC4D00; height: 40px; color: #567a82; text-decoration: none; }
+.btn_download a:hover { -webkit-transform: rotate(360deg) scale(1.1,1.1); -moz-transform: rotate(360deg) scale(1.1,1.1); border-radius: 0px; -webkit-border-radius: 0px; -moz-border-radius: 0px; -khtml-border-radius: 0px; border-left: 8px solid #16A085; }
+.btn_demo a:hover{ -webkit-transform: rotate(360deg) scale(1.1,1.1); -moz-transform: rotate(360deg) scale(1.1,1.1); border-radius: 0px; -webkit-border-radius: 0px; -moz-border-radius: 0px; -khtml-border-radius: 0px; border-left: 8px solid #f95155; }
+/*友链*/
+</style>
+
+		<div class="article-social">
+			<a href="javascript:;" data-action="ding" data-id="14821" id="Addlike" class="action" data-original-title="" title=""><i class="fa fa-heart-o"></i>喜欢 (<span class="count">6</span>)</a>	
+		</div>
+		</article>	
+				<footer class="article-footer">
+			<div class="article-tags"><i class="fa fa-tags"></i><a href="http://dataunion.org/tag/%e6%8e%a8%e8%8d%90%e7%b3%bb%e7%bb%9f" rel="tag" data-original-title="" title="">推荐系统</a></div>		</footer>
+		<nav class="article-nav">
+			<span class="article-nav-prev"><i class="fa fa-angle-double-left"></i> <a href="http://dataunion.org/14809.html" rel="prev">2014年：数据泄漏之年？——信息图</a></span>
+			<span class="article-nav-next"><a href="http://dataunion.org/14858.html" rel="next">【急聘岗位】数据科学家-基本年薪25~40W-深圳</a>  <i class="fa fa-angle-double-right"></i></span>
+		</nav>
+
+		<div class="related_top">
+			<div class="related_posts"><ul class="related_img">
+
+		<li class="related_box">
+		<a href="http://dataunion.org/14620.html" title="订单贡献率10%，京东个性化推荐系统持续优化的奥秘" target="_blank">
+<img src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/timthumb.php" alt="订单贡献率10%，京东个性化推荐系统持续优化的奥秘" width="185" height="110">	<br><span class="r_title">订单贡献率10%，京东个性化推荐系统持续优化的奥秘</span></a>
+		</li>
+	
+		<li class="related_box">
+		<a href="http://dataunion.org/13371.html" title="总结一下我在推荐系统里踩过的那些个坑（续篇）" target="_blank">
+<img src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/timthumb(1).php" alt="总结一下我在推荐系统里踩过的那些个坑（续篇）" width="185" height="110">	<br><span class="r_title">总结一下我在推荐系统里踩过的那些个坑（续篇）</span></a>
+		</li>
+	
+		<li class="related_box">
+		<a href="http://dataunion.org/13206.html" title="关于推荐系统中的特征工程" target="_blank">
+<img src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/timthumb(2).php" alt="关于推荐系统中的特征工程" width="185" height="110">	<br><span class="r_title">关于推荐系统中的特征工程</span></a>
+		</li>
+	
+		<li class="related_box">
+		<a href="http://dataunion.org/10373.html" title="当推荐算法开源包多如牛毛，为什么我们还要专门的推荐算法工程师" target="_blank">
+<img src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/timthumb(3).php" alt="当推荐算法开源包多如牛毛，为什么我们还要专门的推荐算法工程师" width="185" height="110">	<br><span class="r_title">当推荐算法开源包多如牛毛，为什么我们还要专门的推荐算法工程师</span></a>
+		</li>
+	</ul>
+
+<div class="relates">
+<ul>
+<li><i class="fa fa-minus"></i><a href="http://dataunion.org/14620.html">订单贡献率10%，京东个性化推荐系统持续优化的奥秘</a></li><li><i class="fa fa-minus"></i><a href="http://dataunion.org/13371.html">总结一下我在推荐系统里踩过的那些个坑（续篇）</a></li><li><i class="fa fa-minus"></i><a href="http://dataunion.org/13206.html">关于推荐系统中的特征工程</a></li><li><i class="fa fa-minus"></i><a href="http://dataunion.org/10373.html">当推荐算法开源包多如牛毛，为什么我们还要专门的推荐算法工程师</a></li><li><i class="fa fa-minus"></i><a href="http://dataunion.org/9900.html">美团推荐算法实践：机器学习重排序模型成亮点</a></li><li><i class="fa fa-minus"></i><a href="http://dataunion.org/9855.html">什么是好的推荐系统？</a></li><li><i class="fa fa-minus"></i><a href="http://dataunion.org/8466.html">推荐系统的坑！</a></li><li><i class="fa fa-minus"></i><a href="http://dataunion.org/7989.html">《面向程序员的数据挖掘指南》——（二）推荐系统入门</a></li>
+</ul></div></div>		</div>
+						<div id="respond" class="no_webshot">
+		<h3 class="queryinfo">
+		您必须 <a href="http://dataunion.org/wp-login.php?redirect_to=http%3A%2F%2Fdataunion.org%2F14821.html">登录</a> 才能发表评论！	</h3>
+	</div>
+			</div>
+</div>
+<aside class="sidebar">
+	<div class="widget widget_text"><div class="textwidget"><div class="social">
+				<a href="http://www.weibo.com/DataScientistUnion" rel="external nofollow" title="" target="_blank" data-original-title="新浪微博"><i class="sinaweibo fa fa-weibo"></i></a>								<a class="weixin" data-original-title="" title=""><i class="weixins fa fa-weixin"></i><div class="weixin-popover"><div class="popover bottom in"><div class="arrow"></div><div class="popover-title">订阅号“DataScientistUnion”</div><div class="popover-content"><img src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/weixin.jpg"></div></div></div></a>		<a href="http://dataunion.org/contact@dataunion.org" rel="external nofollow" title="" target="_blank" data-original-title="Email"><i class="email fa fa-envelope-o"></i></a>				<a href="http://dataunion.org/?feed=rss2" rel="external nofollow" target="_blank" title="" data-original-title="订阅本站"><i class="rss fa fa-rss"></i></a>			</div></div></div>
+	<div class="widget widget_text"><div class="title"><h2>推荐课程</h2></div>			<div class="textwidget"><div align="center">
+<a href="http://study.163.com/course/introduction/991022.htm"><img src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/20110819_76b9a355b7de78809c5avLkJgDwfcy1M_副本.jpg" width="320" height="160"></a>
+</div> 
+</div>
+		</div><div class="widget d_tag"><div class="title"><h2>热门标签</h2></div><div class="d_tags"><a title="" href="http://dataunion.org/tag/%e6%9c%ba%e5%99%a8%e5%ad%a6%e4%b9%a0" data-original-title="111个话题">机器学习 (111)</a><a title="" href="http://dataunion.org/tag/%e5%a4%a7%e6%95%b0%e6%8d%ae" data-original-title="106个话题">大数据 (106)</a><a title="" href="http://dataunion.org/tag/%e6%b4%bb%e5%8a%a8%e5%98%89%e5%ae%be" data-original-title="47个话题">活动嘉宾 (47)</a><a title="" href="http://dataunion.org/tag/%e7%ae%97%e6%b3%95" data-original-title="41个话题">算法 (41)</a><a title="" href="http://dataunion.org/tag/%e6%b7%b1%e5%ba%a6%e5%ad%a6%e4%b9%a0" data-original-title="34个话题">深度学习 (34)</a><a title="" href="http://dataunion.org/tag/%e6%95%b0%e6%8d%ae%e5%88%86%e6%9e%90" data-original-title="32个话题">数据分析 (32)</a><a title="" href="http://dataunion.org/tag/spark" data-original-title="29个话题">spark (29)</a><a title="" href="http://dataunion.org/tag/%e6%95%b0%e6%8d%ae%e5%8f%af%e8%a7%86%e5%8c%96" data-original-title="28个话题">数据可视化 (28)</a><a title="" href="http://dataunion.org/tag/%e6%95%b0%e6%8d%ae%e6%8c%96%e6%8e%98" data-original-title="28个话题">数据挖掘 (28)</a><a title="" href="http://dataunion.org/tag/hadoop" data-original-title="27个话题">Hadoop (27)</a><a title="" href="http://dataunion.org/tag/python" data-original-title="26个话题">Python (26)</a><a title="" href="http://dataunion.org/tag/%e4%ba%ba%e5%b7%a5%e6%99%ba%e8%83%bd" data-original-title="22个话题">人工智能 (22)</a></div></div><div class="widget d_postlist"><div class="title"><h2>随机推荐</h2></div><ul><li><a href="http://dataunion.org/1312.html" title="【干货教程】R基础课"><span class="thumbnail"><img src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/timthumb(4).php" alt="【干货教程】R基础课" width="100" height="64"></span><span class="text">【干货教程】R基础课</span><span class="muted">2014-09-14</span><span class="muted"></span></a></li>
+<li><a href="http://dataunion.org/11266.html" title="我们是这样理解语言的之 统计语言模型"><span class="thumbnail"><img src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/timthumb(5).php" alt="我们是这样理解语言的之 统计语言模型" width="100" height="64"></span><span class="text">我们是这样理解语言的之 统计语言模型</span><span class="muted">2015-02-28</span><span class="muted"></span></a></li>
+<li><a href="http://dataunion.org/2775.html" title="科普Spark，Spark是什么，如何使用Spark"><span class="thumbnail"><img src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/timthumb(6).php" alt="科普Spark，Spark是什么，如何使用Spark" width="100" height="64"></span><span class="text">科普Spark，Spark是什么，如何使用Spark</span><span class="muted">2014-11-30</span><span class="muted"></span></a></li>
+<li><a href="http://dataunion.org/9281.html" title="一个谷歌程序员的算法学习之路"><span class="thumbnail"><img src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/timthumb(7).php" alt="一个谷歌程序员的算法学习之路" width="100" height="64"></span><span class="text">一个谷歌程序员的算法学习之路</span><span class="muted">2015-01-26</span><span class="muted"></span></a></li>
+</ul></div><div class="widget widget_text"><div class="title"><h2>数盟微信</h2></div>			<div class="textwidget"><div align="center"><img src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/weixin1.jpg" width="200" height="200"></div>
+</div>
+		</div><div class="widgetRoller" style="position: fixed; top: 10px; z-index: 0; width: 360px;"><div class="widget widget_text"><div class="textwidget"><div class="social">
+				<a href="http://www.weibo.com/DataScientistUnion" rel="external nofollow" title="" target="_blank" data-original-title="新浪微博"><i class="sinaweibo fa fa-weibo"></i></a>								<a class="weixin" data-original-title="" title=""><i class="weixins fa fa-weixin"></i><div class="weixin-popover"><div class="popover bottom in"><div class="arrow"></div><div class="popover-title">订阅号“DataScientistUnion”</div><div class="popover-content"><img src="./不到100行代码实现一个简单的推荐系统 – 数盟社区 -_files/weixin.jpg"></div></div></div></a>		<a href="http://dataunion.org/contact@dataunion.org" rel="external nofollow" title="" target="_blank" data-original-title="Email"><i class="email fa fa-envelope-o"></i></a>				<a href="http://dataunion.org/?feed=rss2" rel="external nofollow" target="_blank" title="" data-original-title="订阅本站"><i class="rss fa fa-rss"></i></a>			</div></div></div></div></aside>﻿</section>
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="copyright pull-center" align="center">
+         <a href="http://www.dataunion.org/" title="数盟">DataUnion.org</a> 及所有内容，版权所有 © 2014-2015    北京数盟科技有限公司 <a href="http://www.miitbeian.gov.cn/state/outPortal/loginPortal.action" title="京ICP备14026740号">京ICP备14026740号</a>   
+        </div>
+        <div class="trackcode pull-right">
+                    </div>
+    </div>
+</footer>
+
+
+<div class="rollto" style="display: block;"><button class="btn btn-inverse" data-type="totop" title="回顶部"><i class="fa fa-arrow-up"></i></button><button class="btn btn-inverse" data-type="torespond" title="发评论"><i class="fa fa-comment-o"></i></button></div><style>#header + #content > #left > #rlblock_left
+{display:none !important;}</style><script id="hiddenlpsubmitdiv" style="display: none;"></script><script>try{for(var lastpass_iter=0; lastpass_iter < document.forms.length; lastpass_iter++){ var lastpass_f = document.forms[lastpass_iter]; if(typeof(lastpass_f.lpsubmitorig2)=="undefined"){ lastpass_f.lpsubmitorig2 = lastpass_f.submit; if (typeof(lastpass_f.lpsubmitorig2)=='object'){ console.error('LastPass: Skipping form because submit is not a function!');continue;}lastpass_f.submit = function(){ var form=this; var customEvent = document.createEvent("Event"); customEvent.initEvent("lpCustomEvent", true, true); var d = document.getElementById("hiddenlpsubmitdiv"); if (d) {for(var i = 0; i < document.forms.length; i++){ if(document.forms[i]==form){ if (typeof(d.innerText) != 'undefined') { d.innerText=i; } else { d.textContent=i; } } } d.dispatchEvent(customEvent); }form.lpsubmitorig2(); } } }}catch(e){}</script></body></html>
