@@ -208,3 +208,18 @@ def UserSimilarity(train):
 
 # userCF 算法 是以 物品-用户的倒排表 出发, itemCF 算法 则是以 用户-物品倒排表出发
 
+
+# 优化后 带有解释的ItemCF算法
+def Recommendation(train, user_id, W, K):
+    from operator import itemgetter
+    rank = dict()
+    ru = train[user_id]
+    for i, pi in ru.items():
+        for j, wj in sorted(W[i].items(), key=itemgetter(1), reverse=True)[0:K]:
+            if j in ru:
+                continue
+            rank[j].weight += pi * wj
+            rank[j].reason[i] = pi * wj
+    return rank
+
+
